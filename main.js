@@ -458,9 +458,13 @@ console.log(controller1, controller2);
 // console.log(controllerray);
 
 let l = 1;
+let first = true;
 renderer.setAnimationLoop(function () {
   try {
-    user.position.set(N * 2, N * 2, N * 2);
+    if (first) {
+      first = false;
+      user.position.set(N * 2, N * 2, N * 2);
+    }
 
     points1 = [];
     points1.push(new THREE.Vector3(0, 0, 0));
