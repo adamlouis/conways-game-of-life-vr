@@ -466,6 +466,7 @@ renderer.setAnimationLoop(function () {
       user.position.set(N * 2, N * 2, N * 2);
     }
 
+    // todo: geometry buffer
     points1 = [];
     const c1Origin = user.position.clone().add(controller1.position);
     const c1Dst = c1Origin.clone().sub(controller1.rotation.toVector3().addScalar(5));
