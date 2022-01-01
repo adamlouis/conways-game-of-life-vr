@@ -422,18 +422,26 @@ raycaster.set(new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 1, 1).normalize()
 // const controllerray = new THREE.ArrowHelper(raycaster.ray.direction, raycaster.ray.origin, 300, 0xff00ff);
 // scene.add(controllerray);
 
-const material = new THREE.LineBasicMaterial({
+const linematerial1 = new THREE.LineBasicMaterial({
   color: 0xff00ff,
 });
+const linematerial2 = new THREE.LineBasicMaterial({
+  color: 0xffff00,
+});
 
-const points = [];
-points.push(new THREE.Vector3(0, 0, 0));
-points.push(new THREE.Vector3(8, 2, 0));
+let points1 = [];
+points1.push(new THREE.Vector3(0, 0, 0));
+points1.push(new THREE.Vector3(0, 0, 0));
+let controllerline1geometry = new THREE.BufferGeometry().setFromPoints(points1);
+const controllerline1 = new THREE.LineSegments(controllerline1geometry, linematerial1);
+scene.add(controllerline1);
 
-const geometry = new THREE.BufferGeometry().setFromPoints(points);
-
-const line = new THREE.LineSegments(geometry, material);
-scene.add(line);
+let points2 = [];
+points2.push(new THREE.Vector3(0, 0, 0));
+points2.push(new THREE.Vector3(0, 0, 0));
+let controllerline2geometry = new THREE.BufferGeometry().setFromPoints(points2);
+const controllerline2 = new THREE.LineSegments(controllerline2geometry, linematerial2);
+scene.add(controllerline2);
 
 let controller2 = renderer.xr.getController(1);
 controller2.addEventListener("selectstart", onSelectStart);
@@ -451,11 +459,31 @@ console.log(controller1, controller2);
 
 let l = 1;
 renderer.setAnimationLoop(function () {
-  user.position.set(N * 2, N * 2, N * 2);
+  try {
+    user.position.set(N * 2, N * 2, N * 2);
 
-  //   controllerray.setDirection(controller1.position);
+    points1 = [];
+    points1.push(new THREE.Vector3(0, 0, 0));
+    points1.push(controller1.position);
+    controllerline1geometry = new THREE.BufferGeometry().setFromPoints(points1);
+    controllerline1.geometry = controllerline1geometry;
 
-  renderer.render(scene, camera);
+    points2 = [];
+    points2.push(new THREE.Vector3(0, 0, 0));
+    points2.push(controller1.position);
+    controllerline2geometry = new THREE.BufferGeometry().setFromPoints(points2);
+    controllerline2.geometry = controllerline2geometry;
+
+    //   const points2 = [];
+    //   points2.push(new THREE.Vector3(0, 0, 0));
+    //   point2.push(controller2.position);
+    //   controllerline2geometry = new THREE.BufferGeometry().setFromPoints(points);
+    //   controllerline2.geometry = controllerline2geometry;
+
+    renderer.render(scene, camera);
+  } catch (e) {
+    console.log(e);
+  }
 });
 renderer.render(scene, camera);
 
