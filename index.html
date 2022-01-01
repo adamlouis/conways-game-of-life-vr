@@ -1,0 +1,70 @@
+<html>
+  <head>
+    <style>
+      body {
+        font-family: Courier, monospace;
+        margin: 0px;
+      }
+      canvas {
+        cursor: crosshair;
+      }
+      .row {
+        display: flex;
+      }
+      .cell {
+        border: solid black 1px;
+        height: 10px;
+        width: 10px;
+        cursor: pointer;
+      }
+      .filled {
+        background: black;
+      }
+      button {
+        cursor: pointer;
+      }
+      .faces {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .face-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .face {
+        margin: 2px;
+      }
+      #vrbutton button {
+        background: black !important;
+        opacity: 1 !important;
+      }
+    </style>
+    <script src="https://threejs.org/build/three.js"></script>
+    <script src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+    <script src="/VRButton.js"></script>
+  </head>
+  <body>
+    <div id="scene"></div>
+    <div style="margin-top: 20px">
+      <button onclick="Session.next()">next</button>
+      <button onclick="Session.reset()">reset</button>
+      <button onclick="Session.start()">start</button>
+      <button onclick="Session.stop()">stop</button>
+      <div id="vrbutton"></div>
+    </div>
+    <div class="faces">
+      <div class="face-row">
+        <div class="face" id="face_2"></div>
+        <div class="face" id="face_1"></div>
+        <div class="face" id="face_5"></div>
+      </div>
+      <div class="face" id="face_3"></div>
+      <div class="face" id="face_6"></div>
+      <div class="face" id="face_4"></div>
+    </div>
+    <h1>hi sarah</h1>
+  </body>
+  <script src="./main.js"></script>
+</html>
