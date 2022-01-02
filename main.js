@@ -471,7 +471,7 @@ renderer.setAnimationLoop(function () {
     points1 = [];
     const c1Origin = user.position.clone().add(controller1.position);
 
-    const c1Dst = c1Origin.clone().add(new THREE.Vector3(1, 0, 0).applyEuler(controller1.rotation.toVector3())); //.add(controller1.rotation.toVector3().addScalar(5));
+    const c1Dst = c1Origin.clone().add(new THREE.Vector3(1, 1, 1).applyEuler(controller1.rotation)); //.add(controller1.rotation.toVector3().addScalar(5));
     points1.push(c1Origin);
     points1.push(c1Dst);
     controllerline1geometry = new THREE.BufferGeometry().setFromPoints(points1);
