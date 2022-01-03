@@ -417,8 +417,8 @@ controller1.addEventListener("disconnected", function () {
 });
 scene.add(controller1);
 
-var raycaster = new THREE.Raycaster();
-raycaster.set(new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 1, 1).normalize());
+// var raycaster = new THREE.Raycaster();
+// raycaster.set(new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 1, 1).normalize());
 // const controllerray = new THREE.ArrowHelper(raycaster.ray.direction, raycaster.ray.origin, 300, 0xff00ff);
 // scene.add(controllerray);
 
@@ -459,6 +459,17 @@ console.log(controller1, controller2);
 
 let l = 1;
 let first = true;
+
+var raycastervr = new THREE.Raycaster();
+raycastervr.params.Line.threshold = 0.01;
+
+const origin = new THREE.Vector3(0, 0, 0);
+const dir = new THREE.Vector3(0, 0, 0);
+const length = 1000;
+const hex = 0xffa500;
+const arrowHelper = new THREE.ArrowHelper(dir, origin, length, hex);
+scene.add(arrowHelper);
+
 renderer.setAnimationLoop(function () {
   try {
     if (first) {
@@ -483,6 +494,19 @@ renderer.setAnimationLoop(function () {
     points2.push(c2Dst);
     controllerline2geometry = new THREE.BufferGeometry().setFromPoints(points2);
     controllerline2.geometry = controllerline2geometry;
+
+    const rayOrigin = c1Origin;
+    const rayDir = c1Dst.clone().sub(c1Origin).normalize();
+
+    arrowHelper.position.set(rayOrigin.x, rayOrigin.y, rayOrigin.z);
+    arrowHelper.setDirection(rayDir);
+
+    raycastervr.set(rayOrigin, rayDir);
+    var intersects = raycastervr.intersectObjects(scene.children);
+    const boxes = intersects.filter((ix) => ix.object.geometry instanceof THREE.BoxGeometry);
+    if (boxes.length > 0) {
+      boxes[0].object.material.color.setHex(0xff0000);
+    }
 
     //   const points2 = [];
     //   points2.push(new THREE.Vector3(0, 0, 0));
