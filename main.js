@@ -511,9 +511,9 @@ renderer.setAnimationLoop(function () {
     const ray2Dir = c2Dst.clone().sub(c2Origin).normalize();
     raycastervr.set(ray2Origin, ray2Dir);
     var intersects = raycastervr.intersectObjects(scene.children);
-    const boxes = intersects.filter((ix) => ix.object.geometry instanceof THREE.BoxGeometry);
-    if (boxes.length > 0) {
-      boxes[0].object.material.color.setHex(0xff0000);
+    const boxes2 = intersects.filter((ix) => ix.object.geometry instanceof THREE.BoxGeometry);
+    if (boxes2.length > 0) {
+      boxes2[0].object.material.color.setHex(0xff0000);
     }
 
     //   const points2 = [];
