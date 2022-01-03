@@ -419,7 +419,7 @@ scene.add(controller1);
 
 // var raycaster = new THREE.Raycaster();
 // raycaster.set(new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 1, 1).normalize());
-const controllerray = new THREE.ArrowHelper(raycaster.ray.direction, raycaster.ray.origin, 300, 0xff00ff);
+// const controllerray = new THREE.ArrowHelper(raycaster.ray.direction, raycaster.ray.origin, 300, 0xff00ff);
 // scene.add(controllerray);
 
 const linematerial1 = new THREE.LineBasicMaterial({
