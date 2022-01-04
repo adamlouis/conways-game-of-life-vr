@@ -320,6 +320,8 @@ const Renderer3D = {
     const el = document.getElementById("scene3d");
     const W = el.getBoundingClientRect().width;
     const H = el.getBoundingClientRect().height;
+    el.style.width = W;
+    el.style.height = H;
 
     Renderer3D.W = W;
     Renderer3D.H = H;
