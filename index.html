@@ -52,7 +52,6 @@
         width: min(80vw, 50vh);
       }
       #scene2d {
-        margin-top: 50px;
         margin-bottom: 50px;
       }
 
@@ -70,6 +69,7 @@
   <body>
     <h1>adam's cube of conway's game of life</h1>
     <div id="content">
+      <h2>3d model</h2>
       <div id="scene3d"><noscript>3d visualization requires javascript</noscript></div>
       <div style="margin-top: 20px">
         <button onclick="Model.reset()">reset</button>
@@ -78,8 +78,9 @@
         <button onclick="Controller.stop()">stop</button>
         <!--div id="vrbutton"></div-->
       </div>
+      <h2>2d unfolding</h2>
       <div id="scene2d">
-        <noscript>3d visualization requires javascript</noscript>
+        <noscript>2d visualization requires javascript</noscript>
         <div class="faces">
           <div class="face-row">
             <div class="face" id="face_1"></div>

@@ -108,7 +108,7 @@ const remap = ([f, i, j]) => {
   return [f, i, j];
 };
 
-const THE_N = 25;
+const THE_N = 10;
 const Model = {
   N: THE_N,
   State: make3d(6, THE_N, THE_N),
