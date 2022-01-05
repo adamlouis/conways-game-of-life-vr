@@ -108,13 +108,15 @@ const remap = ([f, i, j]) => {
   return [f, i, j];
 };
 
-const THE_N = 25;
+const urlSearchParams = new URLSearchParams(window.location.search);
+const URL_N = parseInt(urlSearchParams.get("n")) || 10;
+
 const Model = {
-  N: THE_N,
-  State: make3d(6, THE_N, THE_N),
+  N: URL_N,
+  State: make3d(6, URL_N, URL_N),
   _on: {},
 
-  _nextState: make3d(6, THE_N, THE_N),
+  _nextState: make3d(6, URL_N, URL_N),
 
   _subscribers: [],
 
@@ -141,9 +143,9 @@ const Model = {
       const ons = values.reduce((acc, v) => (v ? acc + 1 : acc), 0);
 
       const isCorner = values.length == 7; // TODO
-      const diemin = 2;
-      const diemax = 4;
-      const spawnvalue = 3;
+      const diemin = isCorner ? 1 : 2;
+      const diemax = isCorner ? 4 : 4;
+      const spawnvalue = isCorner ? 3 : 3;
 
       const face = Model.State[f];
 
@@ -249,6 +251,21 @@ const Model = {
     Model._on = {};
   },
 
+  set: (coords) => {
+    for (let c of coords) {
+      const { f, i, j, v } = c;
+      Model.State[f][i][j] = !!v;
+      const k = `${f}_${i}_${j}`;
+
+      if (Model.State[f][i][j]) {
+        Model._on[k] = { f, i, j };
+      } else {
+        delete Model._on[k];
+      }
+    }
+    Model._subscribers.forEach((fn) => fn(coords));
+  },
+
   toggle: (f, i, j) => {
     Model.State[f][i][j] = !Model.State[f][i][j];
     const k = `${f}_${i}_${j}`;
@@ -272,12 +289,16 @@ const Controller = {
     if (Controller.running) {
       return;
     }
+    document.querySelector(".stopped-buttons").hidden = true;
+    document.querySelector(".running-buttons").hidden = false;
     Controller.running = true;
     Controller._loop();
   },
 
   stop: () => {
     Controller.running = false;
+    document.querySelector(".stopped-buttons").hidden = false;
+    document.querySelector(".running-buttons").hidden = true;
   },
   _loop: () => {
     if (!Controller.running) {
@@ -296,7 +317,7 @@ const Controller = {
     // console.log(duration, rollingDuration);
 
     const delay = target - rollingDuration;
-    setTimeout(Controller._loop, delay);
+    setTimeout(Controller._loop, Math.max(delay, 10));
   },
 };
 
@@ -349,6 +370,8 @@ const Renderer3D = {
     Renderer3D.scene = scene;
     Renderer3D.camera = camera;
     Renderer3D.el = el;
+
+    Renderer3D.render();
 
     Renderer3D._initCube();
     Model.onUpdate((coords) => {
@@ -446,7 +469,9 @@ const Renderer3D = {
       return;
     }
     Renderer3D.render();
-    requestAnimationFrame(Renderer3D._loop);
+    setTimeout(() => {
+      requestAnimationFrame(Renderer3D._loop);
+    }, 10);
   },
 
   render: () => {
@@ -526,12 +551,8 @@ const Renderer2D = {
   },
 
   updateCell: (f, i, j, v) => {
-    try {
-      const el = document.getElementById(`c_${f}_${i}_${j}`);
-      el.className = v ? "cell filled" : "cell";
-    } catch (e) {
-      debugger;
-    }
+    const el = document.getElementById(`c_${f}_${i}_${j}`);
+    el.className = v ? "cell filled" : "cell";
   },
 
   _onClickCell: (e) => {
@@ -545,7 +566,106 @@ const RendererVR = {
   init: () => {},
 };
 
-Renderer3D.init();
-// Renderer3D.start();
+const DemoChase = [
+  { f: 0, i: 0, j: 13, v: true },
+  { f: 3, i: 21, j: 9, v: true },
+  { f: 3, i: 17, j: 5, v: true },
+  { f: 3, i: 13, j: 1, v: true },
+  { f: 1, i: 2, j: 9, v: true },
+  { f: 1, i: 6, j: 5, v: true },
+  { f: 1, i: 10, j: 1, v: true },
+  { f: 5, i: 10, j: 2, v: true },
+  { f: 5, i: 6, j: 6, v: true },
+  { f: 5, i: 2, j: 10, v: true },
+  { f: 2, i: 23, j: 14, v: true },
+  { f: 2, i: 19, j: 18, v: true },
+  { f: 2, i: 15, j: 22, v: true },
+  { f: 4, i: 23, j: 11, v: true },
+  { f: 4, i: 19, j: 7, v: true },
+  { f: 4, i: 15, j: 3, v: true },
+  { f: 0, i: 1, j: 13, v: true },
+  { f: 3, i: 22, j: 9, v: true },
+  { f: 3, i: 18, j: 5, v: true },
+  { f: 3, i: 14, j: 1, v: true },
+  { f: 1, i: 2, j: 10, v: true },
+  { f: 1, i: 6, j: 6, v: true },
+  { f: 1, i: 10, j: 2, v: true },
+  { f: 5, i: 10, j: 1, v: true },
+  { f: 5, i: 6, j: 5, v: true },
+  { f: 5, i: 2, j: 9, v: true },
+  { f: 2, i: 23, j: 13, v: true },
+  { f: 2, i: 19, j: 17, v: true },
+  { f: 2, i: 15, j: 21, v: true },
+  { f: 4, i: 24, j: 11, v: true },
+  { f: 4, i: 20, j: 7, v: true },
+  { f: 4, i: 16, j: 3, v: true },
+  { f: 0, i: 2, j: 12, v: true },
+  { f: 3, i: 23, j: 8, v: true },
+  { f: 3, i: 19, j: 4, v: true },
+  { f: 3, i: 15, j: 0, v: true },
+  { f: 1, i: 3, j: 11, v: true },
+  { f: 1, i: 7, j: 7, v: true },
+  { f: 1, i: 11, j: 3, v: true },
+  { f: 5, i: 9, j: 0, v: true },
+  { f: 5, i: 5, j: 4, v: true },
+  { f: 5, i: 1, j: 8, v: true },
+  { f: 2, i: 22, j: 12, v: true },
+  { f: 2, i: 18, j: 16, v: true },
+  { f: 2, i: 14, j: 20, v: true },
+  { f: 2, i: 10, j: 24, v: true },
+  { f: 4, i: 21, j: 6, v: true },
+  { f: 4, i: 17, j: 2, v: true },
+  { f: 0, i: 1, j: 11, v: true },
+  { f: 0, i: 2, j: 13, v: true },
+  { f: 3, i: 22, j: 7, v: true },
+  { f: 3, i: 23, j: 9, v: true },
+  { f: 3, i: 18, j: 3, v: true },
+  { f: 3, i: 19, j: 5, v: true },
+  { f: 1, i: 0, j: 14, v: true },
+  { f: 3, i: 15, j: 1, v: true },
+  { f: 1, i: 2, j: 11, v: true },
+  { f: 1, i: 4, j: 10, v: true },
+  { f: 1, i: 6, j: 7, v: true },
+  { f: 1, i: 8, j: 6, v: true },
+  { f: 1, i: 10, j: 3, v: true },
+  { f: 1, i: 12, j: 2, v: true },
+  { f: 5, i: 8, j: 1, v: true },
+  { f: 5, i: 10, j: 0, v: true },
+  { f: 5, i: 4, j: 5, v: true },
+  { f: 5, i: 6, j: 4, v: true },
+  { f: 5, i: 0, j: 9, v: true },
+  { f: 5, i: 2, j: 8, v: true },
+  { f: 2, i: 21, j: 13, v: true },
+  { f: 2, i: 23, j: 12, v: true },
+  { f: 2, i: 17, j: 17, v: true },
+  { f: 2, i: 19, j: 16, v: true },
+  { f: 2, i: 13, j: 21, v: true },
+  { f: 2, i: 15, j: 20, v: true },
+  { f: 4, i: 24, j: 9, v: true },
+  { f: 2, i: 11, j: 24, v: true },
+  { f: 4, i: 20, j: 5, v: true },
+  { f: 4, i: 21, j: 7, v: true },
+  { f: 4, i: 16, j: 1, v: true },
+  { f: 4, i: 17, j: 3, v: true },
+  { f: 0, i: 11, j: 24, v: true },
+  { f: 0, i: 12, j: 24, v: true },
+  { f: 0, i: 13, j: 24, v: true },
+  { f: 0, i: 13, j: 23, v: true },
+  { f: 0, i: 12, j: 22, v: true },
+];
 
-Renderer2D.init();
+function demo() {
+  Model.reset();
+  if (Model.N == 25) {
+    Model.set(DemoChase);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  setTimeout(() => {
+    Renderer2D.init();
+    setTimeout(() => {
+      Renderer3D.init();
+    }, 0);
+  }, 0);
+});

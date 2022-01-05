@@ -38,7 +38,6 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        flex-wrap: wrap;
       }
       .face {
         margin: 2px;
@@ -65,7 +64,7 @@
         flex-direction: column;
       }
     </style>
-    <script src="three.js"></script>
+    <script src="three.min.js"></script>
     <script src="OrbitControls.js"></script>
     <script src="VRButton.js"></script>
   </head>
@@ -73,12 +72,18 @@
     <h1>adam's cube of conway's game of life</h1>
     <div id="content">
       <div id="scene3d"><noscript>3d visualization requires javascript</noscript></div>
-      <div style="margin-top: 20px">
+      <div class="stopped-buttons" style="margin-top: 20px">
         <button onclick="Model.reset()">reset</button>
         <button onclick="Model.next()">next</button>
         <button onclick="Controller.start()">start</button>
+      </div>
+      <div class="running-buttons" hidden style="margin-top: 20px">
         <button onclick="Controller.stop()">stop</button>
-        <!--div id="vrbutton"></div-->
+      </div>
+      <div style="margin-top: 15px">
+        <a href="/?n=10">n=10</a>
+        <a href="/?n=25">n=25</a>
+        <a href="/?n=50">n=50</a>
       </div>
       <h2>2D Unfolding</h2>
       <div id="scene2d">
