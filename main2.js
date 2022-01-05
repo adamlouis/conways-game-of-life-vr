@@ -110,6 +110,10 @@ const remap = ([f, i, j]) => {
 
 const urlSearchParams = new URLSearchParams(window.location.search);
 const URL_N = parseInt(urlSearchParams.get("n")) || 10;
+const URL_TILES = (urlSearchParams.get("tiles") || "")
+  .split("_")
+  .filter((s) => s)
+  .map((s) => parseInt(s));
 
 const Model = {
   N: URL_N,
@@ -299,6 +303,14 @@ const Controller = {
     Controller.running = false;
     document.querySelector(".stopped-buttons").hidden = false;
     document.querySelector(".running-buttons").hidden = true;
+  },
+  url: () => {
+    const s = Object.values(Model._on)
+      .map((v) => `${v.f}_${v.i}_${v.j}`)
+      .join("_");
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.set("tiles", s);
+    window.history.replaceState({}, "cube is life", `?${urlParams.toString()}`);
   },
   _loop: () => {
     if (!Controller.running) {
@@ -660,6 +672,19 @@ function demo() {
     Model.set(DemoChase);
   }
 }
+
+const urlCoords = [];
+for (let i = 0; i < URL_TILES.length; i += 3) {
+  const c = {
+    f: URL_TILES[i],
+    i: URL_TILES[i + 1],
+    j: URL_TILES[i + 2],
+    v: true,
+  };
+  // TODO: check bounds
+  urlCoords.push(c);
+}
+Model.set(urlCoords);
 
 document.addEventListener("DOMContentLoaded", function () {
   setTimeout(() => {
