@@ -108,11 +108,12 @@ const remap = ([f, i, j]) => {
   return [f, i, j];
 };
 
-const THE_N = 10;
+const THE_N = 25;
 const Model = {
   N: THE_N,
   State: make3d(6, THE_N, THE_N),
   _on: {},
+
   _nextState: make3d(6, THE_N, THE_N),
 
   _subscribers: [],
@@ -121,10 +122,12 @@ const Model = {
     const start = new Date().getTime();
 
     // reuse buffer?
-    const nextState = make3d(6, THE_N, THE_N);
-    const nextOn = {};
+    const nextState = Model._nextState;
+    // const nextState = make3d(6, THE_N, THE_N);
+    // const nextOn = {};
     const changed = [];
 
+    // SPARSE
     const processed = new Set();
     const process = (f, i, j) => {
       const k = `${f}_${i}_${j}`;
@@ -147,21 +150,22 @@ const Model = {
       if (face[i][j]) {
         if (ons < diemin) {
           nextState[f][i][j] = false;
+          delete Model._on[k];
           changed.push({ f, i, j });
         } else if (ons < diemax) {
           nextState[f][i][j] = true;
-          const k = `${f}_${i}_${j}`;
-          nextOn[k] = { f, i, j };
         } else {
           nextState[f][i][j] = false;
+          delete Model._on[k];
           changed.push({ f, i, j });
         }
       } else {
         if (ons == spawnvalue) {
           nextState[f][i][j] = true;
-          const k = `${f}_${i}_${j}`;
-          nextOn[k] = { f, i, j };
-          changed.push({ f, i, j });
+          const p = { f, i, j };
+          Model._on[k] = p;
+          changed.push(p);
+        } else {
         }
       }
     };
@@ -177,14 +181,12 @@ const Model = {
       });
     });
 
-    // console.log(q);
-
     Object.entries(q).forEach(([_, v]) => {
       const [f, i, j] = v;
       process(f, i, j);
     });
 
-    // console.log(processed, q);
+    // SPARSE
 
     // Model.State.forEach((face, f) => {
     //   for (let i = 0; i < face.length; i++) {
@@ -223,23 +225,27 @@ const Model = {
     //   }
     // });
 
+    const swp = Model.State;
     Model.State = nextState;
-    Model._on = nextOn;
-
-    for (let v of changed) {
-      Model._subscribers.forEach((fn) => fn(v.f, v.i, v.j));
+    for (let f = 0; f < swp.length; f++) {
+      for (let i = 0; i < swp[f].length; i++) {
+        swp[f][i].fill(false);
+      }
     }
+    Model._nextState = swp;
+    // Model._on = nextOn;
 
     const end = new Date().getTime();
-
     // console.log("next:", end - start);
+
+    Model._subscribers.forEach((fn) => fn(changed));
   },
 
   reset: () => {
     Object.entries(Model._on).forEach(([k, v]) => {
       Model.State[v.f][v.i][v.j] = false;
-      Model._subscribers.forEach((fn) => fn(v.f, v.i, v.j));
     });
+    Model._subscribers.forEach((fn) => fn(Object.values(Model._on)));
     Model._on = {};
   },
 
@@ -251,11 +257,7 @@ const Model = {
     } else {
       delete Model._on[k];
     }
-    Model._subscribers.forEach((fn) => fn(f, i, j));
-  },
-
-  onToggle: (fn) => {
-    Model._subscribers.push(fn);
+    Model._subscribers.forEach((fn) => fn([{ f, i, j }]));
   },
 
   onUpdate: (fn) => {
@@ -349,9 +351,13 @@ const Renderer3D = {
     Renderer3D.el = el;
 
     Renderer3D._initCube();
-    Model.onToggle((f, i, j) => {
-      Renderer3D.queueUpdate(f, i, j);
-      Renderer3D.render();
+    Model.onUpdate((coords) => {
+      for (let c of coords) {
+        Renderer3D.queueUpdate(c.f, c.i, c.j);
+      }
+      if (!Renderer3D.running) {
+        Renderer3D.render();
+      }
     });
     renderer.domElement.addEventListener("dblclick", Renderer3D._onClickScene);
     Renderer3D.render();
@@ -499,8 +505,11 @@ const Renderer2D = {
       el.innerHTML = f;
     });
 
-    Model.onToggle((f, i, j) => {
-      Renderer2D.updateCell(f, i, j, Model.State[f][i][j]);
+    Model.onUpdate((coords) => {
+      for (let c of coords) {
+        const { f, i, j } = c;
+        Renderer2D.updateCell(f, i, j, Model.State[f][i][j]);
+      }
     });
   },
 
